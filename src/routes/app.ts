@@ -6,6 +6,7 @@ import {authRouter} from "./auth.route";
 import {userRouter} from "./user.route";
 import path from "node:path";
 import * as http from "node:http";
+import {mainRouter} from "./main.route";
 
 export const createApp = (context: AppContext) => {
 
@@ -21,6 +22,7 @@ export const createApp = (context: AppContext) => {
 
     app.use(passport.initialize());
 
+    app.use('/api/main', mainRouter(context));
     app.use('/api/auth', authRouter(context));
     app.use('/api/users', userRouter(context));
 

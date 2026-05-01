@@ -25,3 +25,40 @@ export const users = mysqlTable("users", {
     activationToken: varchar('activationToken', {length: 255}),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({}));
+
+
+export const userInfo = mysqlTable("user_info", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int("userId").references(() => users.id).unique(),
+    countryId: int("countryId").references(() => countries.id),
+    timezoneId: int("timezoneId").references(() => timezones.id),
+
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+    }).onDelete("cascade"),
+}));
+
+
+export const countries = mysqlTable("countries", {
+    id: int('id').autoincrement().primaryKey(),
+    name: varchar("name", {length: 255}).notNull(),
+    capital: varchar("capital", {length: 255}).notNull(),
+    code: varchar("code", {length: 3}).notNull(),
+}, (table) => ({}));
+
+
+export const timezones = mysqlTable("timezones", {
+    id: int('id').autoincrement().primaryKey(),
+    countryId: int("countryId").references(() => countries.id),
+    timezoneName: varchar("timezoneName", {length: 255}).notNull(),
+    utcOffset: varchar("utcOffset", {length: 255}).notNull(),
+}, (table) => ({
+
+    countryFk: foreignKey({
+        columns: [table.countryId],
+        foreignColumns: [countries.id],
+    }).onDelete("cascade"),
+
+}));
