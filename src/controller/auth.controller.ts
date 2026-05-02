@@ -46,6 +46,7 @@ export class AuthController {
                     password: hashedPassword,
                     status: Statuses.NOT_ACTIVATED,
                     activationToken: activationHash,
+                    gameMoney: 100
                 });
 
                 const [newUser] = await trx.select().from(users).where(eq(users.email, validatedData.email));
