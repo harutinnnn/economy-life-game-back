@@ -47,6 +47,8 @@ export const userProgressInfo = mysqlTable("userProgressInfo", {
     userId: int("userId").references(() => users.id).unique(),
     level: int("level").default(1),
     xp: int("xp").default(0),
+    hunger: int("hunger").default(100).notNull(),
+    energy: int("energy").default(100).notNull(),
     experienceXp: int("experienceXp").default(0),
 
 }, (table) => ({

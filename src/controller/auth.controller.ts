@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {userInfo, users} from "../db/schema";
+import {userInfo, userProgressInfo, users} from "../db/schema";
 import {eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -101,10 +101,12 @@ export class AuthController {
             if (req.user?.id) {
 
                 const [userInfoData] = await this.context.db.select().from(userInfo).where(eq(userInfo.userId, req.user?.id));
+                const [userProgressInfoData] = await this.context.db.select().from(userProgressInfo).where(eq(userProgressInfo.userId, req.user?.id));
 
                 res.json({
                     user: req.user,
-                    userInfo: userInfoData
+                    userInfo: userInfoData,
+                    userProgressInfoData: userProgressInfoData
                 });
 
             } else {

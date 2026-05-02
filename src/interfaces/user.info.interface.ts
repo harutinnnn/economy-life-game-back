@@ -7,6 +7,16 @@ export interface UserInfo {
     timezoneId: number;
 }
 
+export interface UserProgressInfo {
+    id: number;
+    userId: number;
+    level: number;
+    xp: number;
+    hunger: number;
+    energy: number;
+    experienceXp: number;
+}
+
 export interface User {
     id: number;
     name: string;
