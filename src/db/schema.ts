@@ -42,6 +42,34 @@ export const userInfo = mysqlTable("user_info", {
     }).onDelete("cascade"),
 }));
 
+export const userProgressInfo = mysqlTable("userProgressInfo", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int("userId").references(() => users.id).unique(),
+    level: int("level").default(1),
+    xp: int("xp").default(0),
+    experienceXp: int("experienceXp").default(0),
+
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+    }).onDelete("cascade"),
+}));
+
+export const userEducation = mysqlTable("userEducation", {
+    id: int('id').autoincrement().primaryKey(),
+    educationId: int("educationId").references(() => education.id),
+    startEducation: timestamp("startEducation").defaultNow(),
+    endEducation: timestamp("endEducation").defaultNow(),
+    status: mysqlEnum('status', [Statuses.STARTED, Statuses.FINISHED, Statuses.CANCELED, Statuses.FAILED]).default(Statuses.STARTED),
+
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.educationId],
+        foreignColumns: [education.id],
+    }).onDelete("cascade"),
+}));
+
 
 export const countries = mysqlTable("countries", {
     id: int('id').autoincrement().primaryKey(),
@@ -62,5 +90,53 @@ export const timezones = mysqlTable("timezones", {
         columns: [table.countryId],
         foreignColumns: [countries.id],
     }).onDelete("cascade"),
-
 }));
+
+
+export const professions = mysqlTable("professions", {
+    id: int('id').autoincrement().primaryKey(),
+    name: varchar("name", {length: 255}).notNull(),
+    availabilityLvl: int("availabilityLvl"),
+}, (table) => ({}));
+
+export const education = mysqlTable("education", {
+    id: int('id').autoincrement().primaryKey(),
+    name: varchar("name", {length: 255}).notNull(),
+    duration: int("duration").default(0),
+}, (table) => ({}));
+
+
+export const skills = mysqlTable("skills", {
+    id: int('id').autoincrement().primaryKey(),
+    name: varchar("name", {length: 255}).notNull(),
+    professionId: int("professionId"),
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.professionId],
+        foreignColumns: [professions.id],
+    }).onDelete("cascade"),
+}));
+
+
+export const userProfessions = mysqlTable("userProgressInfo", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int("userId").references(() => users.id),
+    professionId: int("professionId").notNull(),
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+    }).onDelete("cascade"),
+}));
+
+export const userSkills = mysqlTable("userSkills", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int("userId").references(() => users.id).notNull(),
+    skillId: int("skillId").notNull(),
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.skillId],
+        foreignColumns: [skills.id],
+    }).onDelete("cascade"),
+}));
+
