@@ -22,6 +22,8 @@ export const users = mysqlTable("users", {
     avatar: varchar("avatar", {length: 255}),
     gender: mysqlEnum('gender', [Gender.MALE, Gender.FEMALE, Gender.UNKNOWN]).notNull().default(Gender.UNKNOWN),
     status: mysqlEnum('status', [Statuses.PENDING, Statuses.PUBLISHED, Statuses.BLOCKED, Statuses.NOT_ACTIVATED]).notNull().default(Statuses.NOT_ACTIVATED),
+    gameMoney: int('gameMoney', {unsigned: true}).default(0),
+    realMoney: int('realMoney', {unsigned: true}).default(0),
     activationToken: varchar('activationToken', {length: 255}),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({}));

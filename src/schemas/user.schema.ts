@@ -8,3 +8,8 @@ export const UserSchema = z.object({
     gender: z.enum(Gender),
     password: z.string().min(6, "Password must be at least 6 characters"),
 });
+
+export const UserInfoSchema = z.object({
+    countryId: z.coerce.number(),
+    timezoneId: z.coerce.number(),
+});
