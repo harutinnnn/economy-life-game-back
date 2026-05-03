@@ -1,4 +1,5 @@
 import {Gender} from "../enums/Gender";
+import {UserRoles} from "../enums/UserRoles";
 
 export interface UserInfo {
     id: number;
@@ -30,5 +31,6 @@ export interface User {
     gameMoney: number;
     realMoney: number;
     activationToken: number;
+    role: UserRoles;
     createdAt: Date | string;
 }

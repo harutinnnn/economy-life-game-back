@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/mysql-core";
 import {Statuses} from "../enums/Statuses";
 import {Gender} from "../enums/Gender";
+import {UserRoles} from "../enums/UserRoles";
 
 export const users = mysqlTable("users", {
     id: int('id').autoincrement().primaryKey(),
@@ -25,6 +26,7 @@ export const users = mysqlTable("users", {
     gameMoney: int('gameMoney', {unsigned: true}).default(0),
     realMoney: int('realMoney', {unsigned: true}).default(0),
     activationToken: varchar('activationToken', {length: 255}),
+    role: mysqlEnum('role', [UserRoles.USER, UserRoles.SUPERADMIN, UserRoles.ADMIN]).default(UserRoles.USER),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({}));
 
@@ -139,6 +141,43 @@ export const userSkills = mysqlTable("userSkills", {
     userFk: foreignKey({
         columns: [table.skillId],
         foreignColumns: [skills.id],
+    }).onDelete("cascade"),
+}));
+
+
+export const productsCategories = mysqlTable("productsCategories", {
+    id: int('id').autoincrement().primaryKey(),
+    name: varchar("name", {length: 255}).notNull(),
+}, (table) => ({}));
+
+
+export const products = mysqlTable("products", {
+    id: int('id').autoincrement().primaryKey(),
+    categoryId: int('categoryId').notNull(),
+    name: varchar("name", {length: 255}).notNull(),
+    price: int("price").notNull(),
+    icon: varchar("icon", {length: 255}).notNull(),
+}, (table) => ({
+    productCategoryFk: foreignKey({
+        columns: [table.categoryId],
+        foreignColumns: [productsCategories.id],
+    }).onDelete("cascade"),
+}));
+
+
+export const userProducts = mysqlTable("userProducts", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int("userId").references(() => users.id),
+    productId: int('productId').references(() => products.id),
+    count: int('count').notNull().default(0),
+}, (table) => ({
+    userFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+    }).onDelete("cascade"),
+    userProductFk: foreignKey({
+        columns: [table.productId],
+        foreignColumns: [products.id],
     }).onDelete("cascade"),
 }));
 
