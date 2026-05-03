@@ -10,6 +10,7 @@ global {
             email: string;
             name: string;
             nickname: string;
+            role: string;
         }
 
         interface Request {
