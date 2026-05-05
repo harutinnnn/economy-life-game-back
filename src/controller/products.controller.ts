@@ -5,7 +5,6 @@ import {Request, Response} from "express";
 import {checkIsAdmin} from "../helpers/userHelper";
 import {UserRoles} from "../enums/UserRoles";
 import path from "node:path";
-import fs from "fs";
 import {removeFile, uploadFile} from "../helpers/file.helper";
 
 export class ProductsController {
