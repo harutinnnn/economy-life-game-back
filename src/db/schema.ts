@@ -148,12 +148,13 @@ export const userSkills = mysqlTable("userSkills", {
 export const productsCategories = mysqlTable("productsCategories", {
     id: int('id').autoincrement().primaryKey(),
     name: varchar("name", {length: 255}).notNull(),
+    icon: varchar("icon", {length: 255}).notNull(),
 }, (table) => ({}));
 
 
 export const products = mysqlTable("products", {
     id: int('id').autoincrement().primaryKey(),
-    categoryId: int('categoryId').notNull(),
+    categoryId: int('categoryId').references(() => productsCategories.id).notNull(),
     name: varchar("name", {length: 255}).notNull(),
     price: int("price").notNull(),
     icon: varchar("icon", {length: 255}).notNull(),

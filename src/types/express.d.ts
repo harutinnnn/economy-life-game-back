@@ -1,3 +1,5 @@
+import {Multer} from "multer";
+
 export {}; // 👈 required
 
 global {
@@ -15,6 +17,13 @@ global {
 
         interface Request {
             user?: User | undefined;
+            file?: Multer.File
+            files?:
+                | {
+                [fieldname: string]: Multer.File[];
+            }
+                | Multer.File[]
+                | undefined;
         }
     }
 }
