@@ -24,7 +24,7 @@ export const uploadFile = async (file: Express.Multer.File, pathStr: string): Pr
                 if (!err) {
 
 
-                    resolve(`/uploads/product-categories/${name}`)
+                    resolve(`/uploads/${pathStr}/${name}`)
 
 
                 } else {

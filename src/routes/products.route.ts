@@ -4,7 +4,7 @@ import {authenticateJWT} from "../middlewares/auth";
 import {ProductsController} from "../controller/products.controller";
 import {validate, validateParams} from "../middlewares/validate";
 import {IdParamSchema} from "../schemas/IdParamSchema";
-import {ProductCategorySchema} from "../schemas/product.schema";
+import {ProductCategorySchema, ProductSchema} from "../schemas/product.schema";
 import multer from "multer";
 import {storage} from "../config/storage";
 
@@ -43,7 +43,7 @@ export const ProductsRoute = (context: AppContext) => {
     );
 
     router.post(
-        "/edit",
+        "/edit-category",
         iconUploader.single('icon'),
         authenticateJWT,
         validate(ProductCategorySchema),
@@ -51,10 +51,34 @@ export const ProductsRoute = (context: AppContext) => {
     );
 
     router.delete(
-        "/delete/:id",
+        "/delete-category/:id",
         validateParams(IdParamSchema),
         authenticateJWT,
         productsController.deleteProductCategories
+    );
+
+
+    router.get(
+        "/product/:id",
+        authenticateJWT,
+        validateParams(IdParamSchema),
+        productsController.getProduct
+    );
+
+    router.post(
+        "/edit",
+        iconUploader.single('icon'),
+        authenticateJWT,
+        validate(ProductSchema),
+        productsController.editProduct
+    );
+
+
+    router.delete(
+        "/delete/:id",
+        validateParams(IdParamSchema),
+        authenticateJWT,
+        productsController.deleteProduct
     );
 
     return router

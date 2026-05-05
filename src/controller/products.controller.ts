@@ -85,6 +85,37 @@ export class ProductsController {
         }
     }
 
+
+    getProduct = async (req: Request, res: Response) => {
+
+        if (req?.user?.role) {
+            checkIsAdmin(req.user.role as UserRoles)
+        }
+
+
+        try {
+            const {id} = req.params;
+
+            if (id) {
+
+                const [productItem] = await this.context.db.select().from(products).where(eq(products.id, Number(id)));
+
+
+                return res.json({
+                    product: productItem,
+                });
+
+            } else {
+                console.log(req.user);
+                return res.status(400).json({message: "Invalid token"});
+            }
+
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({message: "Invalid token"});
+        }
+    }
+
     editProductCategories = async (req: Request, res: Response) => {
 
         if (req?.user?.role) {
@@ -178,6 +209,111 @@ export class ProductsController {
                 const rootDir = process.cwd();
                 await removeFile(path.join(rootDir, productCategory.icon));
                 await this.context.db.delete(productsCategories).where(eq(productsCategories.id, Number(id)));
+            }
+
+            return res.json(true);
+
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({message: "Invalid token"});
+        }
+    }
+
+    editProduct = async (req: Request, res: Response) => {
+
+        if (req?.user?.role) {
+            checkIsAdmin(req.user.role as UserRoles)
+        }
+
+        try {
+
+            const {id, name, price, categoryId} = req.body;
+
+            const tmpId = !isNaN(id) ? id : 0;
+
+            const [productCategory] = await this.context.db.select().from(products).where(eq(products.id, parseInt(tmpId)));
+
+            if (productCategory?.id) {
+
+                let iconUrl = productCategory.icon;
+
+
+                if (req?.file) {
+
+                    const rootDir = process.cwd();
+                    await removeFile(path.join(rootDir, iconUrl));
+
+                    iconUrl = await uploadFile(req.file, 'products');
+                }
+
+                await this.context.db.update(products).set({
+                    name: name,
+                    price: price,
+                    categoryId: categoryId,
+                    icon: iconUrl
+                }).where(eq(products.id, productCategory.id));
+
+
+                return res.json({
+                    productCategory: productCategory,
+                });
+
+            } else {
+
+                const [tmpProduct] = await this.context.db.insert(products).values({
+                    name: name,
+                    icon: "",
+                    price: price,
+                    categoryId: categoryId,
+                });
+                const insertId = tmpProduct?.insertId;
+
+
+                if (req?.file) {
+
+                    const fileUrl = await uploadFile(req.file, 'products')
+                    console.log(fileUrl);
+                    console.log(insertId);
+
+                    await this.context.db.update(products).set({
+                        icon: fileUrl,
+                    }).where(eq(products.id, insertId));
+
+                }
+
+
+                return res.json({
+                    productCategory: tmpProduct,
+                });
+
+            }
+
+
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({message: "Invalid token"});
+        }
+    }
+
+    deleteProduct = async (req: Request, res: Response) => {
+
+        if (req?.user?.role) {
+            checkIsAdmin(req.user.role as UserRoles)
+        }
+
+
+        try {
+
+            const {id} = req.params;
+
+
+            const [product] = await this.context.db.select().from(products).where(eq(products.id, Number(id)));
+
+            if (product) {
+
+                const rootDir = process.cwd();
+                await removeFile(path.join(rootDir, product.icon));
+                await this.context.db.delete(products).where(eq(products.id, Number(id)));
             }
 
             return res.json(true);
