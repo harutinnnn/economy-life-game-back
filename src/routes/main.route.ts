@@ -12,9 +12,15 @@ export const mainRouter = (context: AppContext) => {
         "/countries",
         mainController.getCountries
     );
+
     router.get(
         "/timezones/:countryId",
         mainController.getTimezones
+    );
+
+    router.get(
+        "/users-by-country",
+        mainController.usersByCountry
     );
     return router
 }

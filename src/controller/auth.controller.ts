@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
-import {userInfo, userProgressInfo, users} from "../db/schema";
-import {eq} from "drizzle-orm";
+import {countries, userInfo, userProgressInfo, users} from "../db/schema";
+import {and, eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {ZodError} from "zod";
@@ -108,7 +108,20 @@ export class AuthController {
 
             if (req.user?.id) {
 
-                const [userInfoData] = await this.context.db.select().from(userInfo).where(eq(userInfo.userId, req.user?.id));
+                const [userInfoData] = await this.context.db.select(
+                    {
+                        countryId: userInfo.countryId,
+                        timezoneId: userInfo.timezoneId,
+                        countryCode: countries.code,
+                        countryName: countries.name
+                    }
+                ).from(userInfo)
+                    .innerJoin(
+                        countries,
+                        and(eq(countries.id, userInfo.countryId), eq(userInfo.userId, req.user?.id)),
+                    )
+                    .where(eq(userInfo.userId, req.user?.id));
+
                 const [userProgressInfoData] = await this.context.db.select().from(userProgressInfo).where(eq(userProgressInfo.userId, req.user?.id));
 
                 res.json({
