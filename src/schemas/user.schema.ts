@@ -7,6 +7,8 @@ export const UserSchema = z.object({
     email: z.email("Invalid email address"),
     gender: z.enum(Gender),
     password: z.string().min(6, "Password must be at least 6 characters"),
+    countryId: z.coerce.number(),
+    timezoneId: z.coerce.number(),
 });
 
 export const UserInfoSchema = z.object({

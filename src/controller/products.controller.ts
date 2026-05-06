@@ -166,8 +166,6 @@ export class ProductsController {
                 if (req?.file) {
 
                     const fileUrl = await uploadFile(req.file, 'product-categories')
-                    console.log(fileUrl);
-                    console.log(insertId);
 
                     await this.context.db.update(productsCategories).set({
                         icon: fileUrl,

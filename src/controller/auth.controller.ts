@@ -51,6 +51,14 @@ export class AuthController {
 
                 const [newUser] = await trx.select().from(users).where(eq(users.email, validatedData.email));
 
+
+                await trx.insert(userInfo).values({
+                    userId: newUser.id,
+                    countryId: validatedData.countryId,
+                    timezoneId: validatedData.timezoneId,
+                });
+
+
                 const payload = {id: newUser.id, email: newUser.email};
                 const token = jwt.sign(payload, process.env.JWT_SECRET || "default_super_secret_key", {expiresIn: "15m"});
                 const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET || "default_refresh_secret", {expiresIn: "7d"});
@@ -59,7 +67,7 @@ export class AuthController {
                 await trx.update(users).set({refreshToken}).where(eq(users.id, newUser.id));
 
 
-                const activationLink = process.env.SITE_URL + '/auth/activation/' + activationHash;
+                const activationLink = process.env.API_URL + '/api/auth/activation/' + activationHash;
                 //Send email activation
                 await mailService.sendMail({
                     to: validatedData.email,
@@ -139,16 +147,16 @@ export class AuthController {
                     status: status
                 }).where(eq(users.id, user.id));
 
-                return res.redirect(process.env.APP_SITE_URL as string);
+                return res.redirect(process.env.SITE_URL as string);
 
                 //TODO check wrong-activation-code path not redirect or cache
             } else {
-                return res.redirect((process.env.APP_SITE_URL as string) + '/wrong-activation-code');
+                return res.redirect((process.env.SITE_URL as string) + '/wrong-activation-code');
             }
 
 
         } catch (err) {
-            return res.redirect((process.env.APP_SITE_URL as string) + '/wrong-activation-code');
+            return res.redirect((process.env.SITE_URL as string) + '/wrong-activation-code');
         }
 
     }
