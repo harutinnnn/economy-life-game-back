@@ -4,6 +4,7 @@ import {users, userInfo} from "../db/schema";
 import {AppContext} from "../types/app.context.type";
 import {eq} from "drizzle-orm";
 import {Statuses} from "../enums/Statuses";
+import {CITY_AVAILABLE, UserGameLocations} from "../enums/UserGameLocations";
 
 export class UserController {
 
@@ -33,8 +34,8 @@ export class UserController {
 
         try {
 
-            const {countryId, timezoneId,userGameLocation} = req.body;
-            console.log(countryId, timezoneId,userGameLocation)
+            const {countryId, timezoneId, userGameLocation} = req.body;
+            console.log(countryId, timezoneId, userGameLocation)
 
             if (req.user?.id) {
 
@@ -44,21 +45,35 @@ export class UserController {
 
                     //TODO important if user set userGameLocation => country need check level of user and game money too
 
-                    console.log('Update user info');
-                    await this.context.db.update(userInfo).set({
-                        userId: req.user.id,
-                        countryId: countryId,
-                        timezoneId: timezoneId,
-                        userGameLocation: userGameLocation
-                    }).where(eq(userInfo.userId, req.user.id));
+
+                    if (userGameLocation === UserGameLocations.VILLAGE) {
+
+                        await this.context.db.update(userInfo).set({
+                            userId: req.user.id,
+                            countryId: countryId,
+                            timezoneId: timezoneId
+                        }).where(eq(userInfo.userId, req.user.id));
+
+                    } else if (userGameLocation === UserGameLocations.VILLAGE && req.user.level >= CITY_AVAILABLE) {
+
+                        await this.context.db.update(userInfo).set({
+                            userId: req.user.id,
+                            countryId: countryId,
+                            timezoneId: timezoneId,
+                            userGameLocation: userGameLocation
+                        }).where(eq(userInfo.userId, req.user.id));
+
+
+                    } else {
+                        res.status(400).json({message: `Need level ${CITY_AVAILABLE} for relocate to city!`});
+                    }
 
                 } else {
 
-                    console.log('Insert user info');
                     await this.context.db.insert(userInfo).values({
                         userId: req.user.id,
                         countryId: countryId,
-                        timezoneId: timezoneId,
+                        timezoneId: timezoneId
                     });
 
                 }

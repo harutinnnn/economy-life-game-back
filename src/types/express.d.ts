@@ -12,6 +12,7 @@ global {
             email: string;
             name: string;
             nickname: string;
+            level:number;
             role: string;
         }
 
