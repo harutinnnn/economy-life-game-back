@@ -12,6 +12,7 @@ import {
 import {Statuses} from "../enums/Statuses";
 import {Gender} from "../enums/Gender";
 import {UserRoles} from "../enums/UserRoles";
+import {UserGameLocations} from "../enums/UserGameLocations";
 
 export const users = mysqlTable("users", {
     id: int('id').autoincrement().primaryKey(),
@@ -26,6 +27,7 @@ export const users = mysqlTable("users", {
     gameMoney: int('gameMoney', {unsigned: true}).default(0),
     realMoney: int('realMoney', {unsigned: true}).default(0),
     activationToken: varchar('activationToken', {length: 255}),
+    level: int('level').default(0),
     role: mysqlEnum('role', [UserRoles.USER, UserRoles.SUPERADMIN, UserRoles.ADMIN]).default(UserRoles.USER),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({}));
@@ -36,6 +38,7 @@ export const userInfo = mysqlTable("user_info", {
     userId: int("userId").references(() => users.id).unique(),
     countryId: int("countryId").references(() => countries.id),
     timezoneId: int("timezoneId").references(() => timezones.id),
+    userGameLocation: mysqlEnum('userGameLocation', UserGameLocations).default(UserGameLocations.VILLAGE),
 
 }, (table) => ({
     userFk: foreignKey({

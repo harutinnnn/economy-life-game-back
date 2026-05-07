@@ -1,5 +1,6 @@
 import {z} from "zod";
 import {Gender} from "../enums/Gender";
+import {UserGameLocations} from "../enums/UserGameLocations";
 
 export const UserSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -14,4 +15,5 @@ export const UserSchema = z.object({
 export const UserInfoSchema = z.object({
     countryId: z.coerce.number(),
     timezoneId: z.coerce.number(),
+    userGameLocation: z.enum(UserGameLocations),
 });

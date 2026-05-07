@@ -112,6 +112,7 @@ export class AuthController {
                     {
                         countryId: userInfo.countryId,
                         timezoneId: userInfo.timezoneId,
+                        userGameLocation: userInfo.userGameLocation,
                         countryCode: countries.code,
                         countryName: countries.name
                     }

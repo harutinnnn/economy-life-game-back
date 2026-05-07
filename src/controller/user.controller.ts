@@ -33,8 +33,8 @@ export class UserController {
 
         try {
 
-            const {countryId, timezoneId} = req.body;
-            console.log(countryId, timezoneId)
+            const {countryId, timezoneId,userGameLocation} = req.body;
+            console.log(countryId, timezoneId,userGameLocation)
 
             if (req.user?.id) {
 
@@ -42,11 +42,14 @@ export class UserController {
 
                 if (useInfo) {
 
+                    //TODO important if user set userGameLocation => country need check level of user and game money too
+
                     console.log('Update user info');
                     await this.context.db.update(userInfo).set({
                         userId: req.user.id,
                         countryId: countryId,
-                        timezoneId: timezoneId
+                        timezoneId: timezoneId,
+                        userGameLocation: userGameLocation
                     }).where(eq(userInfo.userId, req.user.id));
 
                 } else {
