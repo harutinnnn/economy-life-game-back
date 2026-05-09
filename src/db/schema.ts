@@ -13,6 +13,8 @@ import {Statuses} from "../enums/Statuses";
 import {Gender} from "../enums/Gender";
 import {UserRoles} from "../enums/UserRoles";
 import {UserGameLocations} from "../enums/UserGameLocations";
+import {FieldTypeEnum} from "../enums/FieldTypesEnum";
+import {FieldStatusesEnum} from "../enums/FieldStatusesEnum";
 
 export const users = mysqlTable("users", {
     id: int('id').autoincrement().primaryKey(),
@@ -182,6 +184,22 @@ export const userProducts = mysqlTable("userProducts", {
     userProductFk: foreignKey({
         columns: [table.productId],
         foreignColumns: [products.id],
+    }).onDelete("cascade"),
+}));
+
+
+export const fields = mysqlTable("fields", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('userId').references(() => users.id).notNull(),
+    fieldType: mysqlEnum('fieldType', FieldTypeEnum).notNull(),
+    status: mysqlEnum('status', FieldStatusesEnum).notNull().default(FieldStatusesEnum.EMPTY),
+    startProgressTime: timestamp("created_at"),
+    durationBySeconds: int("durationBySeconds").default(0),
+
+}, (table) => ({
+    fieldUserFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
     }).onDelete("cascade"),
 }));
 
