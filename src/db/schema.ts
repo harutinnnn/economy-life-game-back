@@ -29,7 +29,8 @@ export const users = mysqlTable("users", {
     gameMoney: int('gameMoney', {unsigned: true}).default(0),
     realMoney: int('realMoney', {unsigned: true}).default(0),
     activationToken: varchar('activationToken', {length: 255}),
-    level: int('level').default(0),
+    level: int('level').default(1),
+    xp: int('xp').default(0),
     role: mysqlEnum('role', [UserRoles.USER, UserRoles.SUPERADMIN, UserRoles.ADMIN]).default(UserRoles.USER),
     createdAt: timestamp("created_at").defaultNow(),
 }, (table) => ({}));
@@ -52,11 +53,8 @@ export const userInfo = mysqlTable("user_info", {
 export const userProgressInfo = mysqlTable("userProgressInfo", {
     id: int('id').autoincrement().primaryKey(),
     userId: int("userId").references(() => users.id).unique(),
-    level: int("level").default(1),
-    xp: int("xp").default(0),
     hunger: int("hunger").default(100).notNull(),
     energy: int("energy").default(100).notNull(),
-    experienceXp: int("experienceXp").default(0),
 
 }, (table) => ({
     userFk: foreignKey({
@@ -193,9 +191,23 @@ export const fields = mysqlTable("fields", {
     userId: int('userId').references(() => users.id).notNull(),
     fieldType: mysqlEnum('fieldType', FieldTypeEnum).notNull(),
     status: mysqlEnum('status', FieldStatusesEnum).notNull().default(FieldStatusesEnum.EMPTY),
-    startProgressTime: timestamp("created_at"),
+    startProgressTime: timestamp("startProgressTime"),
+    endProgressTime: timestamp("endProgressTime"),
     durationBySeconds: int("durationBySeconds").default(0),
 
+}, (table) => ({
+    fieldUserFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+    }).onDelete("cascade"),
+}));
+
+
+export const userSeeds = mysqlTable("userSeeds", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('userId').references(() => users.id).notNull(),
+    seedType: mysqlEnum('seedType', FieldTypeEnum).notNull(),
+    count: int('count').default(0),
 }, (table) => ({
     fieldUserFk: foreignKey({
         columns: [table.userId],
