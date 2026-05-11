@@ -123,13 +123,9 @@ export class FieldsController {
 
                         }).catch((err: any) => {
                             res.status(500).json({error: "Failed to register user"});
-
                         })
-
                     } else {
-
                         res.status(200).json({error: "The field not ready for collect!"});
-
                     }
 
                 }
