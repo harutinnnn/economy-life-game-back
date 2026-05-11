@@ -28,6 +28,12 @@ export const ProductsRoute = (context: AppContext) => {
         productsController.getProducts
     );
 
+    router.get(
+        "/goup-by",
+        authenticateJWT,
+        productsController.getProductsCategoriesGrouped
+    );
+
 
     router.get(
         "/product-categories",

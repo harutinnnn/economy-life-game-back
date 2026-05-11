@@ -1,6 +1,6 @@
 import {AppContext} from "../types/app.context.type";
-import {products, productsCategories} from "../db/schema";
-import {eq} from "drizzle-orm";
+import {countries, products, productsCategories, userInfo} from "../db/schema";
+import {and, eq} from "drizzle-orm";
 import {Request, Response} from "express";
 import {checkIsAdmin} from "../helpers/userHelper";
 import {UserRoles} from "../enums/UserRoles";
@@ -33,6 +33,58 @@ export class ProductsController {
             res.status(400).json({message: "Invalid token"});
         }
     }
+
+    getProductsCategoriesGrouped = async (req: Request, res: Response) => {
+
+        try {
+
+            const productsList = await this.context.db.select()
+                .from(productsCategories)
+                .innerJoin(
+                    products,
+                    and(eq(products.categoryId, productsCategories.id)),
+                );
+
+            res.json({
+                products: productsList,
+            });
+
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({message: "Invalid token"});
+        }
+    }
+
+    getProduct = async (req: Request, res: Response) => {
+
+        if (req?.user?.role) {
+            checkIsAdmin(req.user.role as UserRoles)
+        }
+
+
+        try {
+            const {id} = req.params;
+
+            if (id) {
+
+                const [productItem] = await this.context.db.select().from(products).where(eq(products.id, Number(id)));
+
+
+                return res.json({
+                    product: productItem,
+                });
+
+            } else {
+                console.log(req.user);
+                return res.status(400).json({message: "Invalid token"});
+            }
+
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({message: "Invalid token"});
+        }
+    }
+
 
     getProductCategories = async (req: Request, res: Response) => {
 
@@ -84,36 +136,6 @@ export class ProductsController {
         }
     }
 
-
-    getProduct = async (req: Request, res: Response) => {
-
-        if (req?.user?.role) {
-            checkIsAdmin(req.user.role as UserRoles)
-        }
-
-
-        try {
-            const {id} = req.params;
-
-            if (id) {
-
-                const [productItem] = await this.context.db.select().from(products).where(eq(products.id, Number(id)));
-
-
-                return res.json({
-                    product: productItem,
-                });
-
-            } else {
-                console.log(req.user);
-                return res.status(400).json({message: "Invalid token"});
-            }
-
-        } catch (err) {
-            console.log(err);
-            res.status(400).json({message: "Invalid token"});
-        }
-    }
 
     editProductCategories = async (req: Request, res: Response) => {
 

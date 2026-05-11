@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {countries, userInfo, userProgressInfo, users, userSeeds} from "../db/schema";
+import {countries, userCollectedSeeds, userInfo, userProgressInfo, users, userSeeds} from "../db/schema";
 import {and, eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -53,18 +53,25 @@ export class AuthController {
                 const [newUser] = await trx.select().from(users).where(eq(users.email, validatedData.email));
 
 
-
                 await trx.insert(userInfo).values({
                     userId: newUser.id,
                     countryId: validatedData.countryId,
                     timezoneId: validatedData.timezoneId,
                 });
 
-                const wheatSeed = await trx.insert(userSeeds).values(
+                await trx.insert(userSeeds).values(
                     {
                         userId: newUser.id,
                         seedType: FieldTypeEnum.WHEAT,
                         count: 1
+                    }
+                )
+
+                await trx.insert(userCollectedSeeds).values(
+                    {
+                        userId: newUser.id,
+                        seedType: FieldTypeEnum.WHEAT,
+                        count: 0
                     }
                 )
 
@@ -161,10 +168,8 @@ export class AuthController {
             const status = Statuses.PUBLISHED;
 
             const [user] = await this.context.db.select().from(users).where(eq(users.activationToken, activationToken));
-            console.log('user', user)
 
             if (user) {
-
 
                 await this.context.db.update(users).set({
                     activationToken: null,

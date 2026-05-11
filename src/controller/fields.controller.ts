@@ -121,26 +121,29 @@ export class FieldsController {
                                 throw Error('Failed to fetch seeds');
                             }
 
+                            return res.json({
+                                fields: field
+                            });
+
                         }).catch((err: any) => {
-                            res.status(500).json({error: "Failed to register user"});
+                            console.error(err);
+
+                            return res.status(500).json({error: "Some thing went wrong"});
+
                         })
                     } else {
-                        res.status(200).json({error: "The field not ready for collect!"});
+                        return res.status(200).json({error: "The field not ready for collect!"});
                     }
 
                 }
 
-
-                res.json({
-                    fields: field
-                });
-
             } else {
-                res.status(400).json({message: "Invalid token"});
+                return res.status(400).json({message: "Invalid token"});
             }
 
         } catch (error) {
-            res.status(500).json({error: "Failed to fetch users"});
+            console.log(error);
+            return res.status(500).json({error: "Failed to fetch users"});
         }
     }
 
