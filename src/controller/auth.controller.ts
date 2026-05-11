@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {countries, userInfo, userProgressInfo, users} from "../db/schema";
+import {countries, userInfo, userProgressInfo, users, userSeeds} from "../db/schema";
 import {and, eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -15,6 +15,7 @@ import {TokenParamSchema} from "../schemas/IdParamSchema";
 import {forgotSchema} from "../schemas/login.schema";
 import {forgotPassword} from "../modules/mail/templates/forgotPassword.template";
 import {generatePassword} from "../helpers/password.helper";
+import {FieldTypeEnum} from "../enums/FieldTypesEnum";
 
 export class AuthController {
 
@@ -52,11 +53,20 @@ export class AuthController {
                 const [newUser] = await trx.select().from(users).where(eq(users.email, validatedData.email));
 
 
+
                 await trx.insert(userInfo).values({
                     userId: newUser.id,
                     countryId: validatedData.countryId,
                     timezoneId: validatedData.timezoneId,
                 });
+
+                const wheatSeed = await trx.insert(userSeeds).values(
+                    {
+                        userId: newUser.id,
+                        seedType: FieldTypeEnum.WHEAT,
+                        count: 1
+                    }
+                )
 
 
                 const payload = {id: newUser.id, email: newUser.email};
