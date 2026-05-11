@@ -215,3 +215,16 @@ export const userSeeds = mysqlTable("userSeeds", {
     }).onDelete("cascade"),
 }));
 
+
+export const userCollectedSeeds = mysqlTable("userCollectedSeeds", {
+    id: int('id').autoincrement().primaryKey(),
+    userId: int('userId').references(() => users.id).notNull(),
+    seedType: mysqlEnum('seedType', FieldTypeEnum).notNull(),
+    count: int('count').default(0),
+}, (table) => ({
+    fieldUserFk: foreignKey({
+        columns: [table.userId],
+        foreignColumns: [users.id],
+    }).onDelete("cascade"),
+}));
+

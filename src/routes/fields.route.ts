@@ -25,6 +25,12 @@ export const fieldsRouter = (context: AppContext) => {
         fieldsController.seedField
     );
 
+    router.get(
+        "/collect-field/:id",
+        authenticateJWT,
+        fieldsController.collectField
+    );
+
 
     return router
 }

@@ -1,10 +1,11 @@
 import {Request, Response} from "express";
-import {fields, userInfo, userSeeds} from "../db/schema";
+import {fields, userCollectedSeeds, userInfo, users, userSeeds} from "../db/schema";
 import {AppContext} from "../types/app.context.type";
 import {and, eq} from "drizzle-orm";
 import {db} from "../db";
 import {FieldTypeEnum} from "../enums/FieldTypesEnum";
 import {FieldStatusesEnum} from "../enums/FieldStatusesEnum";
+import {CollectFieldsEnumXP} from "../enums/CollectFieldsEnumXP";
 
 export class FieldsController {
 
@@ -25,7 +26,6 @@ export class FieldsController {
                 let fieldList = await db.select().from(fields).where(eq(
                     fields.userId, req.user?.id
                 ));
-                console.log(fieldList);
 
                 if (!fieldList.length) {
 
@@ -42,6 +42,101 @@ export class FieldsController {
 
                 res.json({
                     fields: fieldList
+                });
+
+            } else {
+                res.status(400).json({message: "Invalid token"});
+            }
+
+        } catch (error) {
+            res.status(500).json({error: "Failed to fetch users"});
+        }
+    }
+
+    /**
+     * @param req
+     * @param res
+     */
+    collectField = async (req: Request, res: Response) => {
+
+        //TODO check is duration end
+        try {
+
+            const {id} = req.params;
+
+            if (req.user?.id) {
+
+                const [field] = await this.context.db.select().from(fields).where(
+                    and(
+                        eq(fields.userId, req.user?.id),
+                        eq(fields.id, Number(id))
+                    )
+                );
+
+
+                if (field && field.status == FieldStatusesEnum.IN_PROGRESS && field.startProgressTime && field.endProgressTime) {
+                    const now = Date.now();
+                    const start = new Date(field.endProgressTime);
+
+                    if ((start.getTime() / 1000) - now <= 0) {
+
+                        this.context.db.transaction(async (trx: any) => {
+
+
+                            const [user] = await trx.select().from(users).where(eq(users.id, Number(req.user?.id)));
+
+                            await trx.update(users).set({
+                                xp: user.xp + CollectFieldsEnumXP.WHEAT
+                            }).where(
+                                eq(users.id, Number(req.user?.id))
+                            )
+
+                            await trx.update(fields).set({
+                                status: FieldStatusesEnum.EMPTY,
+                            }).where(
+                                and(
+                                    eq(fields.id, Number(id)),
+                                    eq(fields.userId, Number(req.user?.id))
+                                )
+                            )
+
+
+                            const [userSeed] = await trx.select().from(userSeeds)
+                                .where(
+                                    and(
+                                        eq(userSeeds.userId, Number(req.user?.id)),
+                                        eq(userSeeds.seedType, FieldTypeEnum.WHEAT)
+                                    )
+                                );
+
+                            if (userSeed) {
+
+                                await trx.update(userSeeds).set({
+                                    count: userSeed.count + 1,
+                                }).where(
+                                    eq(userSeeds.id, userSeed.id)
+                                )
+
+                            } else {
+                                throw Error('Failed to fetch seeds');
+                            }
+
+                        }).catch((err: any) => {
+                            res.status(500).json({error: "Failed to register user"});
+
+                        })
+
+                    } else {
+
+                        res.status(200).json({error: "The field not ready for collect!"});
+
+                    }
+
+                }
+
+
+                res.json({
+                    fields: field
                 });
 
             } else {
@@ -89,7 +184,7 @@ export class FieldsController {
 
                             }).where(eq(fields.id, field.id));
 
-                            const take = await this.context.db.update(userSeeds).set({
+                            await this.context.db.update(userCollectedSeeds).set({
                                 count: Number(seedWheat.count) - 1,
                             }).where(eq(userSeeds.id, seedWheat.id));
 
@@ -115,7 +210,6 @@ export class FieldsController {
             }
 
         } catch (e) {
-            console.error(e);
             res.status(500).json({error: "Failed to fetch users"});
         }
 
