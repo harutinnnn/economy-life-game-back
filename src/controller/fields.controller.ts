@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-import {fields, userCollectedSeeds, userInfo, users, userSeeds} from "../db/schema";
+import {fields, userCollectedSeeds, users, userSeeds} from "../db/schema";
 import {AppContext} from "../types/app.context.type";
 import {and, eq} from "drizzle-orm";
 import {db} from "../db";
@@ -78,7 +78,7 @@ export class FieldsController {
                     const now = Date.now();
                     const start = new Date(field.endProgressTime);
 
-                    if ((start.getTime() / 1000) - now <= 0) {
+                    if (((start.getTime()) - now) / 1000 <= 0) {
 
                         this.context.db.transaction(async (trx: any) => {
 
@@ -101,20 +101,20 @@ export class FieldsController {
                             )
 
 
-                            const [userSeed] = await trx.select().from(userSeeds)
+                            const [userSeed] = await trx.select().from(userCollectedSeeds)
                                 .where(
                                     and(
-                                        eq(userSeeds.userId, Number(req.user?.id)),
-                                        eq(userSeeds.seedType, FieldTypeEnum.WHEAT)
+                                        eq(userCollectedSeeds.userId, Number(req.user?.id)),
+                                        eq(userCollectedSeeds.seedType, FieldTypeEnum.WHEAT)
                                     )
                                 );
 
                             if (userSeed) {
 
-                                await trx.update(userSeeds).set({
+                                await trx.update(userCollectedSeeds).set({
                                     count: userSeed.count + 1,
                                 }).where(
-                                    eq(userSeeds.id, userSeed.id)
+                                    eq(userCollectedSeeds.id, userSeed.id)
                                 )
 
                             } else {
@@ -167,7 +167,7 @@ export class FieldsController {
 
                         if (seedWheat && Number(seedWheat.count) > 0) {
 
-                            const wheatDurationSec: number = 100;
+                            const wheatDurationSec: number = 30;
                             const dateNow = new Date();
                             const endDate = new Date();
                             endDate.setSeconds(endDate.getSeconds() + wheatDurationSec);
@@ -180,7 +180,7 @@ export class FieldsController {
 
                             }).where(eq(fields.id, field.id));
 
-                            await this.context.db.update(userCollectedSeeds).set({
+                            await this.context.db.update(userSeeds).set({
                                 count: Number(seedWheat.count) - 1,
                             }).where(eq(userSeeds.id, seedWheat.id));
 
@@ -206,6 +206,7 @@ export class FieldsController {
             }
 
         } catch (e) {
+            console.log(e)
             res.status(500).json({error: "Failed to fetch users"});
         }
 
