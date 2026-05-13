@@ -14,6 +14,8 @@ global {
             nickname: string;
             level:number;
             role: string;
+            gameMoney:number,
+            realMoney:number,
         }
 
         interface Request {

@@ -15,6 +15,8 @@ import {UserRoles} from "../enums/UserRoles";
 import {UserGameLocations} from "../enums/UserGameLocations";
 import {FieldTypeEnum} from "../enums/FieldTypesEnum";
 import {FieldStatusesEnum} from "../enums/FieldStatusesEnum";
+import {ProductTypesEnum} from "../enums/ProductTypesEnum";
+import {SeedTypeEnum} from "../enums/SeedTypeEnum";
 
 export const users = mysqlTable("users", {
     id: int('id').autoincrement().primaryKey(),
@@ -161,6 +163,7 @@ export const products = mysqlTable("products", {
     name: varchar("name", {length: 255}).notNull(),
     price: int("price").notNull(),
     icon: varchar("icon", {length: 255}).notNull(),
+    productType: mysqlEnum('productType', ProductTypesEnum)
 }, (table) => ({
     productCategoryFk: foreignKey({
         columns: [table.categoryId],
@@ -206,7 +209,7 @@ export const fields = mysqlTable("fields", {
 export const userSeeds = mysqlTable("userSeeds", {
     id: int('id').autoincrement().primaryKey(),
     userId: int('userId').references(() => users.id).notNull(),
-    seedType: mysqlEnum('seedType', FieldTypeEnum).notNull(),
+    seedType: mysqlEnum('seedType', SeedTypeEnum).notNull(),
     count: int('count').default(0),
 }, (table) => ({
     fieldUserFk: foreignKey({
@@ -227,4 +230,12 @@ export const userCollectedSeeds = mysqlTable("userCollectedSeeds", {
         foreignColumns: [users.id],
     }).onDelete("cascade"),
 }));
+
+export const seeds = mysqlTable("seeds", {
+    id: int('id').autoincrement().primaryKey(),
+    seedType: mysqlEnum('seedType', SeedTypeEnum).notNull(),
+    price: int("price").notNull(),
+    name: varchar("name", {length: 255}).notNull(),
+    icon: varchar("icon", {length: 255}).notNull(),
+}, (table) => ({}));
 

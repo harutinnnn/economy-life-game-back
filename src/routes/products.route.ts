@@ -41,6 +41,12 @@ export const ProductsRoute = (context: AppContext) => {
         productsController.getProductCategories
     );
 
+    router.post(
+        "/buy-product/:id",
+        authenticateJWT,
+        productsController.buyProduct
+    );
+
     router.get(
         "/product-category/:id",
         authenticateJWT,

@@ -1,11 +1,12 @@
 import {AppContext} from "../types/app.context.type";
-import {countries, products, productsCategories, userInfo} from "../db/schema";
+import {countries, products, productsCategories, userInfo, users} from "../db/schema";
 import {and, eq} from "drizzle-orm";
 import {Request, Response} from "express";
 import {checkIsAdmin} from "../helpers/userHelper";
 import {UserRoles} from "../enums/UserRoles";
 import path from "node:path";
 import {removeFile, uploadFile} from "../helpers/file.helper";
+import {ProductTypesEnum} from "../enums/ProductTypesEnum";
 
 export class ProductsController {
 
@@ -99,6 +100,81 @@ export class ProductsController {
             res.json({
                 productsCategories: productCategoriesList,
             });
+
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({message: "Invalid token"});
+        }
+    }
+
+    buyProduct = async (req: Request, res: Response) => {
+        try {
+
+            const {id} = req.params;
+
+            if (id) {
+
+                if (req.user?.gameMoney) {
+
+                    const product = await this.context.db.select().from(products).where(eq(products.id, Number(id)));
+
+                    if (product) {
+
+                        if (req.user?.gameMoney >= product.price) {
+
+                            this.context.db.transaction(async (trx: any) => {
+
+
+                                switch (product.productType) {
+
+                                    case ProductTypesEnum.SEED:
+
+                                        break;
+                                    case ProductTypesEnum.FOOD:
+
+                                        break;
+                                    case ProductTypesEnum.ANIMALS:
+
+                                        break;
+                                    case ProductTypesEnum.TECHNIQUE:
+
+                                        break;
+                                    case ProductTypesEnum.MATERIAL:
+
+                                        break;
+                                }
+
+                                trx.update(users).set({
+                                    gameMoney: Number(req.user?.gameMoney) - product.price,
+                                }).where(eq(users.id, Number(req.user?.id)));
+
+
+                                res.json({product: product});
+
+
+                            }).catch((err: any) => {
+
+                                console.log(err);
+                                res.status(500).json({error: "Failed to buy product"});
+
+                            })
+                        } else {
+                            res.status(400).json({message: "Not enough money!"});
+                        }
+
+                    } else {
+
+                        res.status(400).json({message: "Cant fetch product"});
+                    }
+
+                } else {
+
+                    res.status(400).json({message: "Invalid token"});
+                }
+            } else {
+                res.status(400).json({message: "Cant fetch product"});
+            }
+
 
         } catch (err) {
             console.log(err);
@@ -246,7 +322,7 @@ export class ProductsController {
 
         try {
 
-            const {id, name, price, categoryId} = req.body;
+            const {id, name, price, categoryId, productType} = req.body;
 
             const tmpId = !isNaN(id) ? id : 0;
 
@@ -269,6 +345,7 @@ export class ProductsController {
                     name: name,
                     price: price,
                     categoryId: categoryId,
+                    productType: productType,
                     icon: iconUrl
                 }).where(eq(products.id, productCategory.id));
 
@@ -342,5 +419,6 @@ export class ProductsController {
             res.status(400).json({message: "Invalid token"});
         }
     }
+
 
 }
