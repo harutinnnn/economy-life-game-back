@@ -1,11 +1,13 @@
 import {Request, Response} from "express";
-import {fields, userCollectedSeeds, users, userSeeds} from "../db/schema";
+import {fields, userCollectedSeeds} from "../db/schema";
+import {userSeeds} from "../db/models/user";
 import {AppContext} from "../types/app.context.type";
 import {and, eq} from "drizzle-orm";
 import {db} from "../db";
 import {FieldTypeEnum} from "../enums/FieldTypesEnum";
 import {FieldStatusesEnum} from "../enums/FieldStatusesEnum";
 import {CollectFieldsEnumXP} from "../enums/CollectFieldsEnumXP";
+import {users} from "../db/models/user";
 
 export class FieldsController {
 

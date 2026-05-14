@@ -1,5 +1,7 @@
 import {Request, Response} from "express";
-import {countries, userCollectedSeeds, userInfo, userProgressInfo, users, userSeeds} from "../db/schema";
+import {userCollectedSeeds} from "../db/schema";
+import {countries} from "../db/models/location";
+import {users,userInfo,userProgressInfo,userSeeds} from "../db/models/user";
 import {and, eq} from "drizzle-orm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";

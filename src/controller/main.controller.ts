@@ -1,5 +1,6 @@
 import {AppContext} from "../types/app.context.type";
-import {countries, timezones, userInfo, users} from "../db/schema";
+import {userInfo} from "../db/models/user";
+import {countries, timezones} from "../db/models/location";
 import {and, eq, sql} from "drizzle-orm";
 import {Request, Response} from "express";
 

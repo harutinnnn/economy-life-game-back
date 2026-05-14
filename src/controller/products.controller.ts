@@ -1,5 +1,6 @@
 import {AppContext} from "../types/app.context.type";
-import {countries, products, productsCategories, userInfo, users} from "../db/schema";
+import {products, productsCategories, } from "../db/schema";
+import {users} from "../db/models/user";
 import {and, eq} from "drizzle-orm";
 import {Request, Response} from "express";
 import {checkIsAdmin} from "../helpers/userHelper";

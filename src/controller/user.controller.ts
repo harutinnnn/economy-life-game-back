@@ -1,9 +1,7 @@
 import {Request, Response} from "express";
-import {db} from "../db";
-import {users, userInfo} from "../db/schema";
+import {userInfo} from "../db/models/user";
 import {AppContext} from "../types/app.context.type";
 import {eq} from "drizzle-orm";
-import {Statuses} from "../enums/Statuses";
 import {CITY_AVAILABLE, UserGameLocations} from "../enums/UserGameLocations";
 
 export class UserController {
